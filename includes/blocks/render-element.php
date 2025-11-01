@@ -83,9 +83,6 @@ foreach ( $global_attrs as $attr_name => $attr_value ) {
 		continue;
 	}
 
-	// Sanitize attribute name
-	$attr_name = preg_replace( '/[^a-zA-Z0-9\-_]/', '', $attr_name );
-
 	// Skip 'class' from globalAttrs - we use className attribute instead (WordPress official way)
 	if ( $attr_name === 'class' ) {
 		continue;
