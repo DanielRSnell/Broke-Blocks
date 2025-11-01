@@ -1,0 +1,116 @@
+/**
+ * Universal Block Appender & Editor Styles
+ * High fidelity appender experience without impacting design
+ */
+
+/* Hide all appenders by default for universal blocks */
+.block-editor-block-list__block[data-type="universal/element"] .block-list-appender {
+	display: none !important;
+}
+
+/* Show appender only on the selected block - positioned outside the block */
+.block-editor-block-list__block[data-type="universal/element"].is-selected > .block-list-appender {
+	display: flex !important;
+	position: absolute !important;
+	bottom: -40px !important;
+	left: 0 !important;
+	right: 0 !important;
+	width: 100% !important;
+	justify-content: center !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	opacity: 0 !important;
+	transition: opacity 0.2s ease !important;
+	pointer-events: auto !important;
+	z-index: 100 !important;
+	background: rgba(255, 255, 255, 0.98) !important;
+	border-radius: 4px !important;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15) !important;
+	padding: 4px !important;
+}
+
+/* Show appender on hover of selected block */
+.block-editor-block-list__block[data-type="universal/element"].is-selected:hover > .block-list-appender {
+	opacity: 1 !important;
+}
+
+/* Force show appender when hovering over it directly */
+.block-editor-block-list__block[data-type="universal/element"].is-selected > .block-list-appender:hover {
+	opacity: 1 !important;
+}
+
+/* Make the inserter dropdown full width */
+.block-editor-block-list__block[data-type="universal/element"].is-selected > .block-list-appender .block-editor-inserter {
+	width: 100% !important;
+}
+
+/* Style the appender button itself */
+.block-editor-block-list__block[data-type="universal/element"].is-selected > .block-list-appender .block-editor-button-block-appender {
+	width: 100% !important;
+	height: 32px !important;
+	min-width: 100% !important;
+	padding: 0 !important;
+	background: #1e1e1e !important;
+	color: white !important;
+	border-radius: 3px !important;
+	transition: all 0.2s ease !important;
+	border: none !important;
+}
+
+.block-editor-block-list__block[data-type="universal/element"].is-selected > .block-list-appender .block-editor-button-block-appender:hover {
+	background: #007cba !important;
+}
+
+.block-editor-block-list__block[data-type="universal/element"].is-selected > .block-list-appender .block-editor-button-block-appender svg {
+	fill: white !important;
+}
+
+/* Hide insertion points between blocks */
+.block-editor-block-list__insertion-point {
+	display: none !important;
+}
+
+/* Subtle hover state - uses box-shadow instead of outline to not affect layout */
+.block-editor-block-list__block[data-type="universal/element"]:hover:not(.is-selected):not(.has-child-selected) {
+	box-shadow: inset 0 0 0 1px rgba(0, 124, 186, 0.25) !important;
+}
+
+/* Selected block gets a more visible indicator without affecting layout */
+.block-editor-block-list__block[data-type="universal/element"].is-selected {
+	box-shadow: inset 0 0 0 2px rgba(0, 124, 186, 0.6) !important;
+	position: relative !important;
+}
+
+/* Add selection badge in top-left corner - shows block type */
+.block-editor-block-list__block[data-type="universal/element"].is-selected::before {
+	content: attr(data-title) !important;
+	position: absolute !important;
+	top: -22px !important;
+	left: 0 !important;
+	background: #1e1e1e !important;
+	color: white !important;
+	font-size: 10px !important;
+	padding: 3px 8px !important;
+	border-radius: 3px 3px 0 0 !important;
+	font-weight: 600 !important;
+	z-index: 10 !important;
+	letter-spacing: 0.5px !important;
+	text-transform: uppercase !important;
+	opacity: 0.95 !important;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+	pointer-events: none !important;
+}
+
+/* Don't show badge or appender when child is selected */
+.block-editor-block-list__block[data-type="universal/element"].has-child-selected::before {
+	display: none !important;
+}
+
+.block-editor-block-list__block[data-type="universal/element"].has-child-selected > .block-list-appender {
+	display: none !important;
+}
+
+/* Ensure block is positioned for absolute children */
+.block-editor-block-list__block[data-type="universal/element"] {
+	position: relative !important;
+}

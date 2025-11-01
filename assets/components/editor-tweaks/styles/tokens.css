@@ -1,0 +1,137 @@
+/**
+ * Universal Editor Tweaks - Design Tokens
+ * WordPress Gutenberg + Shadcn inspired design system
+ */
+
+:host {
+  /* Colors - WordPress Admin Palette */
+  --wp-admin-theme-color: #007cba;
+  --wp-admin-theme-color-darker: #005a87;
+  --wp-admin-theme-color-lighter: #33a0cc;
+
+  /* Backgrounds */
+  --wp-background: #f0f0f1;
+  --wp-background-secondary: #ffffff;
+  --wp-background-tertiary: #f8f9fa;
+  --wp-background-dark: #1e1e1e;
+
+  /* Borders */
+  --wp-border: #c3c4c7;
+  --wp-border-light: #e0e0e0;
+  --wp-border-subtle: #f0f0f0;
+
+  /* Text Colors */
+  --wp-text: #1e1e1e;
+  --wp-text-secondary: #757575;
+  --wp-text-tertiary: #a7aaad;
+  --wp-text-inverse: #ffffff;
+
+  /* Status Colors */
+  --wp-success: #00a32a;
+  --wp-success-darker: #007a1f;
+  --wp-warning: #dba617;
+  --wp-warning-darker: #b8920f;
+  --wp-error: #d63638;
+  --wp-error-darker: #b32d2e;
+
+  /* Spacing Scale - Gutenberg */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 40px;
+
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  --font-family-mono: Menlo, Consolas, monaco, monospace;
+
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-sm: 1.4;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.6;
+
+  /* Shadows & Elevation */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+  --shadow-drawer: 2px 0 8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+
+  /* Border Radius */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Layout Dimensions */
+  --sidebar-width: 60px;
+  --drawer-width: 350px;
+  --drawer-width-lg: 400px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-drawer: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-sidebar: 99998;
+  --z-drawer: 99999;
+}
+
+/* Component State Modifiers */
+:host {
+  --state-hover-opacity: 0.8;
+  --state-active-opacity: 0.9;
+  --state-disabled-opacity: 0.5;
+  --state-focus-ring: 0 0 0 2px var(--wp-admin-theme-color-lighter);
+}
+
+/* Dark Mode Support (Future) */
+:host([theme="dark"]) {
+  --wp-background: #1e1e1e;
+  --wp-background-secondary: #2c2c2c;
+  --wp-background-tertiary: #3c3c3c;
+  --wp-text: #ffffff;
+  --wp-text-secondary: #a7aaad;
+  --wp-border: #3c3c3c;
+  --wp-border-light: #4c4c4c;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  :host {
+    --drawer-width: 100vw;
+    --sidebar-width: 50px;
+  }
+}
+
+@media (min-width: 1200px) {
+  :host {
+    --drawer-width: var(--drawer-width-lg);
+  }
+}

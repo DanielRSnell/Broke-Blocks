@@ -1,0 +1,271 @@
+/**
+ * Context Viewer Widget Styles
+ */
+
+/* Widget Button */
+.universal-context-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9998;
+}
+
+.universal-context-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e1e1e;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.universal-context-toggle:hover {
+    background: #2d2d2d;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.universal-context-toggle:active {
+    transform: translateY(0);
+}
+
+.universal-context-toggle svg {
+    flex-shrink: 0;
+}
+
+/* Drawer */
+.universal-context-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.universal-context-drawer.is-open {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.universal-context-drawer-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.universal-context-drawer-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 600px;
+    max-width: 90vw;
+    background: #1e1e1e;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+}
+
+.universal-context-drawer.is-open .universal-context-drawer-content {
+    transform: translateX(0);
+}
+
+/* Header */
+.universal-context-drawer-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: #252525;
+}
+
+.universal-context-drawer-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.universal-context-drawer-title svg {
+    flex-shrink: 0;
+    color: #4a9eff;
+}
+
+.universal-context-drawer-title h2 {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.universal-context-drawer-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.universal-context-url {
+    display: block;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 4px;
+}
+
+.universal-context-close {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.universal-context-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Body */
+.universal-context-drawer-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+#universal-context-editor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 14px;
+}
+
+/* Footer */
+.universal-context-drawer-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #252525;
+}
+
+.universal-context-copy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #4a9eff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.universal-context-copy:hover {
+    background: #3a8eef;
+}
+
+.universal-context-copy:active {
+    transform: scale(0.98);
+}
+
+.universal-context-copy.is-success {
+    background: #22c55e;
+}
+
+.universal-context-copy svg {
+    flex-shrink: 0;
+}
+
+.universal-context-info {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .universal-context-widget {
+        bottom: 16px;
+        right: 16px;
+    }
+
+    .universal-context-toggle span {
+        display: none;
+    }
+
+    .universal-context-toggle {
+        padding: 12px;
+    }
+
+    .universal-context-drawer-content {
+        width: 100vw;
+        max-width: 100vw;
+    }
+
+    .universal-context-drawer-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .universal-context-drawer-title {
+        width: 100%;
+    }
+
+    .universal-context-close {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+    }
+}
+
+/* Dark scrollbar for drawer */
+.universal-context-drawer-body ::-webkit-scrollbar {
+    width: 12px;
+}
+
+.universal-context-drawer-body ::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+.universal-context-drawer-body ::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 6px;
+}
+
+.universal-context-drawer-body ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

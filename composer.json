@@ -1,0 +1,8 @@
+{
+    "name": "universal-block/universal-block",
+    "description": "WordPress Universal Block Plugin",
+    "type": "wordpress-plugin",
+    "require": {
+        "timber/timber": "^2.3"
+    }
+}

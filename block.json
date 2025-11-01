@@ -1,0 +1,131 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "universal/element",
+	"version": "0.1.1",
+	"title": "Element",
+	"category": "text",
+	"icon": "editor-code",
+	"description": "A designless polymorphic block that can be any HTML element.",
+	"keywords": [
+		"element",
+		"polymorphic",
+		"designless",
+		"html"
+	],
+	"textdomain": "universal-block",
+	"editorScript": "file:./build/index.js",
+	"editorStyle": "file:./build/index.css",
+	"style": "file:./assets/css/style.css",
+	"render": "file:./includes/blocks/render-element.php",
+	"attributes": {
+		"blockName": {
+			"type": "string",
+			"default": ""
+		},
+		"elementType": {
+			"type": "string",
+			"default": "text"
+		},
+		"tagName": {
+			"type": "string",
+			"default": "p"
+		},
+		"contentType": {
+			"type": "string"
+		},
+		"globalAttrs": {
+			"type": "object",
+			"default": {}
+		},
+		"content": {
+			"type": "string",
+			"default": ""
+		},
+		"selfClosing": {
+			"type": "boolean",
+			"default": false
+		},
+		"loopSource": {
+			"type": "string",
+			"default": ""
+		},
+		"loopVariable": {
+			"type": "string",
+			"default": "item"
+		},
+		"conditionalVisibility": {
+			"type": "boolean",
+			"default": false
+		},
+		"conditionalExpression": {
+			"type": "string",
+			"default": ""
+		},
+		"setVariable": {
+			"type": "string",
+			"default": ""
+		},
+		"setExpression": {
+			"type": "string",
+			"default": ""
+		},
+		"dynamicPreview": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"supports": {
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"anchor": true,
+		"align": ["left", "center", "right", "wide", "full"],
+		"alignWide": true,
+		"spacing": {
+			"padding": true,
+			"margin": true,
+			"blockGap": true
+		},
+		"dimensions": {
+			"minHeight": true,
+			"aspectRatio": true
+		},
+		"position": {
+			"sticky": true
+		},
+		"typography": {
+			"fontSize": true,
+			"fontFamily": true,
+			"fontWeight": true,
+			"fontStyle": true,
+			"textTransform": true,
+			"textDecoration": true,
+			"letterSpacing": true,
+			"lineHeight": true
+		},
+		"color": {
+			"text": true,
+			"background": true,
+			"link": true,
+			"gradients": true
+		},
+		"border": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		},
+		"shadow": true,
+		"interactivity": {
+			"clientNavigation": true
+		}
+	},
+	"example": {
+		"attributes": {
+			"elementType": "text",
+			"tagName": "p",
+			"content": "This is a universal element that can be any HTML tag."
+		}
+	}
+}
