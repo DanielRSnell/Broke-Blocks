@@ -79,7 +79,7 @@ $twig_control_attrs = array(
 
 // Add/merge global attributes
 foreach ( $global_attrs as $attr_name => $attr_value ) {
-	if ( empty( $attr_name ) || empty( $attr_value ) ) {
+	if ( empty( $attr_name ) ) {
 		continue;
 	}
 
@@ -110,7 +110,12 @@ foreach ( $global_attrs as $attr_name => $attr_value ) {
 // Build attribute string
 $attr_string = '';
 foreach ( $attrs as $attr_name => $attr_value ) {
-	if ( ! empty( $attr_value ) ) {
+	// Support boolean attributes (empty string or true)
+	if ( $attr_value === '' || $attr_value === true ) {
+		// Boolean attribute (e.g., disabled, checked, selected)
+		$attr_string .= ' ' . esc_attr( $attr_name );
+	} else {
+		// Regular attribute with value
 		$attr_string .= ' ' . esc_attr( $attr_name ) . '="' . $attr_value . '"';
 	}
 }
