@@ -53,13 +53,21 @@ $attrs = array();
 
 // Add block ID if not already set in globalAttrs
 if ( ! isset( $global_attrs['id'] ) ) {
-	// Generate unique block ID using a hash of block data
-	$block_data = wp_json_encode( array(
-		'tag' => $tag_name,
-		'content' => substr( $block_content, 0, 50 ),
-		'attrs' => $global_attrs,
-	) );
-	$attrs['id'] = 'block-' . substr( md5( $block_data . microtime() ), 0, 8 );
+	// Priority: metadata.name > generated block ID
+	$metadata_name = $attributes['metadata']['name'] ?? '';
+
+	if ( ! empty( $metadata_name ) ) {
+		// Use metadata.name as ID
+		$attrs['id'] = $metadata_name;
+	} else {
+		// Generate unique block ID using a hash of block data
+		$block_data = wp_json_encode( array(
+			'tag' => $tag_name,
+			'content' => substr( $block_content, 0, 50 ),
+			'attrs' => $global_attrs,
+		) );
+		$attrs['id'] = 'block-' . substr( md5( $block_data . microtime() ), 0, 8 );
+	}
 }
 
 // Add className if present
