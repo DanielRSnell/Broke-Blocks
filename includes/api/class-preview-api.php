@@ -275,6 +275,12 @@ class Universal_Block_Preview_API {
 		// Get Timber context
 		$context = \Timber\Timber::context();
 
+		// Update post in context if global $post is set (from setup_dynamic_context)
+		global $post;
+		if ( $post ) {
+			$context['post'] = \Timber\Timber::get_post( $post->ID );
+		}
+
 		// Process dynamic tags if present
 		if ( Universal_Block_Dynamic_Tag_Parser::has_dynamic_tags( $content ) ) {
 			$validation = Universal_Block_Dynamic_Tag_Parser::validate_structure( $content );
