@@ -5,6 +5,7 @@ import {
 	TextControl,
 	Notice
 } from '@wordpress/components';
+import { isPanelEnabled } from '../utils/useBlockSettings';
 
 /**
  * Twig Controls Panel
@@ -23,10 +24,11 @@ export default function TwigControlsPanel({ attributes, setAttributes }) {
 	return (
 		<>
 			{/* Loop Controls */}
-			<PanelBody
-				title={__('Loop Controls', 'universal-block')}
-				initialOpen={false}
-			>
+			{isPanelEnabled('loopControls') && (
+				<PanelBody
+					title={__('Loop Controls', 'universal-block')}
+					initialOpen={false}
+				>
 				<ToggleControl
 					label={__('Enable Loop', 'universal-block')}
 					checked={!!loopSource}
@@ -63,13 +65,15 @@ export default function TwigControlsPanel({ attributes, setAttributes }) {
 						</Notice>
 					</>
 				)}
-			</PanelBody>
+				</PanelBody>
+			)}
 
 			{/* Conditional Visibility */}
-			<PanelBody
-				title={__('Conditional Visibility', 'universal-block')}
-				initialOpen={false}
-			>
+			{isPanelEnabled('conditionalVisibility') && (
+				<PanelBody
+					title={__('Conditional Visibility', 'universal-block')}
+					initialOpen={false}
+				>
 				<ToggleControl
 					label={__('Enable Conditional', 'universal-block')}
 					checked={conditionalVisibility}
@@ -98,13 +102,15 @@ export default function TwigControlsPanel({ attributes, setAttributes }) {
 						</Notice>
 					</>
 				)}
-			</PanelBody>
+				</PanelBody>
+			)}
 
 			{/* Set Variable */}
-			<PanelBody
-				title={__('Set Variable', 'universal-block')}
-				initialOpen={false}
-			>
+			{isPanelEnabled('setVariable') && (
+				<PanelBody
+					title={__('Set Variable', 'universal-block')}
+					initialOpen={false}
+				>
 				<ToggleControl
 					label={__('Set Variable', 'universal-block')}
 					checked={!!setVariable}
@@ -141,7 +147,8 @@ export default function TwigControlsPanel({ attributes, setAttributes }) {
 						</Notice>
 					</>
 				)}
-			</PanelBody>
+				</PanelBody>
+			)}
 		</>
 	);
 }

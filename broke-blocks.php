@@ -155,6 +155,15 @@ function universal_block_enqueue_block_editor_assets() {
 		'debugMode' => defined( 'WP_DEBUG' ) && WP_DEBUG
 	) );
 
+	// Pass block settings to the editor
+	wp_localize_script( 'universal-block-editor', 'ubBlockSettings', array(
+		'settings' => Universal_Block_Settings::get_settings(),
+		'source' => Universal_Block_Settings::get_source(),
+		'allowedTags' => Universal_Block_Settings::get_allowed_tags(),
+		'allowedContentTypes' => Universal_Block_Settings::get_allowed_content_types(),
+		'allowedPostTypes' => Universal_Block_Settings::get_allowed_post_types()
+	) );
+
 	if ( file_exists( UNIVERSAL_BLOCK_PLUGIN_DIR . 'build/index.css' ) ) {
 		wp_enqueue_style(
 			'universal-block-editor-style',
@@ -176,6 +185,7 @@ require_once UNIVERSAL_BLOCK_PLUGIN_DIR . 'includes/parser/class-dynamic-tag-par
 require_once UNIVERSAL_BLOCK_PLUGIN_DIR . 'includes/api/class-preview-api.php';
 require_once UNIVERSAL_BLOCK_PLUGIN_DIR . 'includes/api/class-preview-settings-api.php';
 require_once UNIVERSAL_BLOCK_PLUGIN_DIR . 'includes/blocks/class-block-processor.php';
+require_once UNIVERSAL_BLOCK_PLUGIN_DIR . 'includes/settings/class-block-settings.php';
 require_once UNIVERSAL_BLOCK_PLUGIN_DIR . 'includes/twig/class-twig-helpers.php';
 require_once UNIVERSAL_BLOCK_PLUGIN_DIR . 'includes/helpers/class-fullscreen-admin.php';
 require_once UNIVERSAL_BLOCK_PLUGIN_DIR . 'includes/helpers/class-context-viewer.php';

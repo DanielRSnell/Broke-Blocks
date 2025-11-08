@@ -8,7 +8,7 @@ import {
 	useInnerBlocksProps
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { useMemo, useCallback } from '@wordpress/element';
+import { useMemo, useCallback, useState, useEffect } from '@wordpress/element';
 import {
 	PanelBody,
 	SelectControl,
@@ -19,19 +19,36 @@ import {
 	ToggleControl,
 	ToolbarGroup
 } from '@wordpress/components';
+import { debounce } from '@wordpress/compose';
 import ImageSettingsPanel from './ImageSettingsPanel';
 import LinkSettingsPanel from './LinkSettingsPanel';
 import TagNameToolbar from './TagNameToolbar';
 import PlainClassesManager from './PlainClassesManager';
 import TwigControlsPanel from './TwigControlsPanel';
+import BlockPreview from './BlockPreview';
+import {
+	extractPreviewContext,
+	serializeBlockForPreview,
+	fetchDynamicPreview
+} from '../utils/preview';
+import {
+	isPanelEnabled,
+	isControlEnabled,
+	getAllowedTags,
+	getAllowedContentTypes
+} from '../utils/useBlockSettings';
 
-// Hoisted constants (created once, not per render)
-const CONTENT_TYPE_OPTIONS = [
-	{ label: 'Blocks (Container)', value: 'blocks' },
-	{ label: 'Text', value: 'text' },
-	{ label: 'HTML', value: 'html' },
-	{ label: 'Empty', value: 'empty' }
-];
+// Filter content type options based on settings
+function getContentTypeOptions() {
+	const allowedTypes = getAllowedContentTypes();
+	const allOptions = [
+		{ label: 'Blocks (Container)', value: 'blocks' },
+		{ label: 'Text', value: 'text' },
+		{ label: 'HTML', value: 'html' },
+		{ label: 'Empty', value: 'empty' }
+	];
+	return allOptions.filter(opt => allowedTypes.includes(opt.value));
+}
 
 const DATABASE_ICON_SVG = (
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -52,6 +69,11 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 		isSelfClosing = false,
 		dynamicPreview = false
 	} = attributes;
+
+	// Preview state
+	const [previewHtml, setPreviewHtml] = useState('');
+	const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+	const [previewError, setPreviewError] = useState(null);
 
 	// Memoize filtered global attributes
 	const filteredGlobalAttrs = useMemo(() => {
@@ -98,6 +120,51 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 	const onTagChange = useCallback((value) => setAttributes({ tagName: value }), [setAttributes]);
 	const onContentTypeChange = useCallback((value) => setAttributes({ contentType: value }), [setAttributes]);
 	const onDynamicPreviewToggle = useCallback(() => setAttributes({ dynamicPreview: !dynamicPreview }), [dynamicPreview, setAttributes]);
+
+	// Preview fetch function
+	const fetchPreview = useCallback(async () => {
+		setIsLoadingPreview(true);
+		setPreviewError(null);
+
+		try {
+			// Serialize block and get context
+			const blockMarkup = serializeBlockForPreview(clientId);
+			const context = extractPreviewContext();
+
+			// Fetch preview from server
+			const response = await fetchDynamicPreview(blockMarkup, clientId, context);
+
+			// Update preview HTML
+			setPreviewHtml(response.content || '');
+		} catch (error) {
+			console.error('Preview error:', error);
+			setPreviewError(error.message || 'Failed to load preview');
+		} finally {
+			setIsLoadingPreview(false);
+		}
+	}, [clientId]);
+
+	// Debounced preview fetch (500ms delay)
+	const debouncedFetchPreview = useMemo(
+		() => debounce(fetchPreview, 500),
+		[fetchPreview]
+	);
+
+	// Effect: Fetch preview when toggle is ON or attributes change
+	useEffect(() => {
+		if (dynamicPreview) {
+			debouncedFetchPreview();
+		} else {
+			// Clear preview when toggle is OFF
+			setPreviewHtml('');
+			setPreviewError(null);
+		}
+
+		// Cleanup debounce on unmount
+		return () => {
+			debouncedFetchPreview.cancel();
+		};
+	}, [dynamicPreview, attributes, debouncedFetchPreview]);
 
 	// Open HTML editor popup
 	const openHtmlEditor = useCallback(() => {
@@ -201,32 +268,76 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 	return (
 		<>
 			<BlockControls>
-				<ToolbarGroup>
-					<TagNameToolbar
-						tagName={tagName}
-						onChange={onTagChange}
-					/>
-				</ToolbarGroup>
-			<ToolbarGroup>
-				<Button
-					icon={DATABASE_ICON_SVG}
-					label={__('Toggle Dynamic Preview', 'universal-block')}
-					isPressed={dynamicPreview}
-					onClick={onDynamicPreviewToggle}
-				/>
-			</ToolbarGroup>
+				{isPanelEnabled('tagNameToolbar') && (
+					<ToolbarGroup>
+						<TagNameToolbar
+							tagName={tagName}
+							onChange={onTagChange}
+						/>
+					</ToolbarGroup>
+				)}
+				{isPanelEnabled('dynamicPreviewButton') && (
+					<ToolbarGroup>
+						<Button
+							icon={DATABASE_ICON_SVG}
+							label={__('Toggle Dynamic Preview', 'universal-block')}
+							isPressed={dynamicPreview}
+							onClick={onDynamicPreviewToggle}
+						/>
+					</ToolbarGroup>
+				)}
 			</BlockControls>
 
 			<InspectorControls>
-				{/* Plain Classes Manager - Always visible at top */}
-				<div style={{ padding: '16px', borderBottom: '1px solid #e0e0e0' }}>
-					<PlainClassesManager
-						className={attributes.className || ''}
-						onChange={(newClassName) => setAttributes({ className: newClassName })}
-					/>
-				</div>
+				{/* Plain Classes Manager */}
+				{isPanelEnabled('plainClassesManager') && (
+					<div style={{ padding: '16px', borderBottom: '1px solid #e0e0e0' }}>
+						<PlainClassesManager
+							className={attributes.className || ''}
+							onChange={(newClassName) => setAttributes({ className: newClassName })}
+						/>
+					</div>
+				)}
 
-				<PanelBody title={__('Element Settings', 'universal-block')}>
+				{/* Dynamic Preview Toggle */}
+				{isPanelEnabled('dynamicPreviewToggle') && (
+					<div style={{
+						padding: '16px',
+						borderBottom: `1px solid ${dynamicPreview ? 'rgba(59, 130, 246, 0.2)' : '#e0e0e0'}`,
+						background: 'transparent'
+					}}>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+							<div style={{ flex: 1 }}>
+								<ToggleControl
+									label={__('Dynamic Preview', 'universal-block')}
+									checked={dynamicPreview}
+									onChange={onDynamicPreviewToggle}
+									help={dynamicPreview
+										? __('Preview mode active - showing live data from Timber/Twig context', 'universal-block')
+										: __('Enable to preview dynamic content with real data', 'universal-block')
+									}
+								/>
+							</div>
+							{dynamicPreview && (
+								<Button
+									icon="edit"
+									label={__('Edit Block', 'universal-block')}
+									onClick={() => {
+										// Turn off preview mode to return to editing
+										setAttributes({ dynamicPreview: false });
+									}}
+									style={{
+										marginTop: '-8px',
+										color: '#3b82f6'
+									}}
+								/>
+							)}
+						</div>
+					</div>
+				)}
+
+				{isPanelEnabled('elementSettings') && (
+					<PanelBody title={__('Element Settings', 'universal-block')}>
 					<TextControl
 						label={__('HTML Tag', 'universal-block')}
 						value={tagName}
@@ -234,15 +345,17 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 						help={__('Enter any HTML tag name (e.g., div, section, custom-element)', 'universal-block')}
 					/>
 
-					<SelectControl
-						label={__('Content Type', 'universal-block')}
-						value={contentType}
-						options={CONTENT_TYPE_OPTIONS}
-						onChange={onContentTypeChange}
-					/>
+					{isControlEnabled('elementSettings', 'contentType') && (
+						<SelectControl
+							label={__('Content Type', 'universal-block')}
+							value={contentType}
+							options={getContentTypeOptions()}
+							onChange={onContentTypeChange}
+						/>
+					)}
 
 
-					{contentType === 'text' && (
+					{contentType === 'text' && isControlEnabled('elementSettings', 'textContent') && (
 						<TextareaControl
 							label={__('Text Content', 'universal-block')}
 							value={content}
@@ -252,23 +365,27 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 							style={{ marginTop: '12px' }}
 						/>
 					)}
-					<ToggleControl
-						label={__('Self Closing', 'universal-block')}
-						checked={isSelfClosing}
-						onChange={(value) => setAttributes({ isSelfClosing: value })}
-						help={__('Render as self-closing tag (e.g., <img />)', 'universal-block')}
-					/>
+					{isControlEnabled('elementSettings', 'selfClosing') && (
+						<ToggleControl
+							label={__('Self Closing', 'universal-block')}
+							checked={isSelfClosing}
+							onChange={(value) => setAttributes({ isSelfClosing: value })}
+							help={__('Render as self-closing tag (e.g., <img />)', 'universal-block')}
+						/>
+					)}
 
-					<Button
-						variant="secondary"
-						onClick={openAttributesEditor}
-						style={{ marginTop: '8px', width: '100%' }}
-					>
-						<i className="ri-braces-line" style={{ marginRight: '6px' }}></i>
-						{__('Edit Attributes', 'universal-block')}
-					</Button>
+					{isControlEnabled('elementSettings', 'editAttributes') && (
+						<Button
+							variant="secondary"
+							onClick={openAttributesEditor}
+							style={{ marginTop: '8px', width: '100%' }}
+						>
+							<i className="ri-braces-line" style={{ marginRight: '6px' }}></i>
+							{__('Edit Attributes', 'universal-block')}
+						</Button>
+					)}
 
-					{contentType === 'blocks' && (
+					{contentType === 'blocks' && isControlEnabled('elementSettings', 'toHtml') && (
 						<Button
 							variant="secondary"
 							onClick={convertToHtml}
@@ -281,15 +398,17 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 
 					{contentType === 'html' && (
 						<ButtonGroup style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-							<Button
-								variant="secondary"
-								onClick={openHtmlEditor}
-								style={{ flex: 1 }}
-							>
-								<i className="ri-code-line" style={{ marginRight: '6px' }}></i>
-								{__('Edit HTML', 'universal-block')}
-							</Button>
-							{content && (
+							{isControlEnabled('elementSettings', 'editHtml') && (
+								<Button
+									variant="secondary"
+									onClick={openHtmlEditor}
+									style={{ flex: 1 }}
+								>
+									<i className="ri-code-line" style={{ marginRight: '6px' }}></i>
+									{__('Edit HTML', 'universal-block')}
+								</Button>
+							)}
+							{content && isControlEnabled('elementSettings', 'toBlocks') && (
 								<Button
 									variant="secondary"
 									onClick={convertToBlocks}
@@ -301,11 +420,12 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 							)}
 						</ButtonGroup>
 					)}
-				</PanelBody>
+					</PanelBody>
+				)}
 
 
 				{/* Image Settings Panel - only show for img tags */}
-				{tagName === 'img' && (
+				{tagName === 'img' && isPanelEnabled('imageSettings') && (
 					<ImageSettingsPanel
 						globalAttrs={globalAttrs}
 						setAttributes={setAttributes}
@@ -313,7 +433,7 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 				)}
 
 				{/* Link Settings Panel - only show for a tags */}
-				{tagName === 'a' && (
+				{tagName === 'a' && isPanelEnabled('linkSettings') && (
 					<LinkSettingsPanel
 						globalAttrs={globalAttrs}
 						setAttributes={setAttributes}
@@ -328,31 +448,48 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 			</InspectorControls>
 
 			{/* Render based on content type */}
-			{contentType === 'blocks' && (
-				<TagElement {...innerBlocksProps}>
-					{innerBlocksProps.children}
-				</TagElement>
-			)}
-
-			{contentType === 'text' && (
-				<RichText
-					tagName={tagName}
-					value={content}
-					onChange={(value) => setAttributes({ content: value })}
-					placeholder={__('Enter text...', 'universal-block')}
-					{...elementProps}
+			{dynamicPreview ? (
+				<BlockPreview
+					html={previewHtml}
+					isLoading={isLoadingPreview}
+					error={previewError}
+					onRetry={fetchPreview}
+					onExitPreview={() => setAttributes({ dynamicPreview: false })}
+					onSelectBlock={() => {
+						const { selectBlock } = wp.data.dispatch('core/block-editor');
+						selectBlock(clientId);
+					}}
+					showBadge={true}
 				/>
-			)}
+			) : (
+				<>
+					{contentType === 'blocks' && (
+						<TagElement {...innerBlocksProps}>
+							{innerBlocksProps.children}
+						</TagElement>
+					)}
 
-			{contentType === 'html' && (
-				<TagElement
-					{...elementProps}
-					dangerouslySetInnerHTML={{ __html: content || '<p style="color: #999; padding: 20px; text-align: center;">No HTML content. Use the sidebar to open the HTML editor.</p>' }}
-				/>
-			)}
+					{contentType === 'text' && (
+						<RichText
+							tagName={tagName}
+							value={content}
+							onChange={(value) => setAttributes({ content: value })}
+							placeholder={__('Enter text...', 'universal-block')}
+							{...elementProps}
+						/>
+					)}
 
-			{contentType === 'empty' && (
-				<TagElement {...elementProps} />
+					{contentType === 'html' && (
+						<TagElement
+							{...elementProps}
+							dangerouslySetInnerHTML={{ __html: content || '<p style="color: #999; padding: 20px; text-align: center;">No HTML content. Use the sidebar to open the HTML editor.</p>' }}
+						/>
+					)}
+
+					{contentType === 'empty' && (
+						<TagElement {...elementProps} />
+					)}
+				</>
 			)}
 		</>
 	);

@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Universal Block Settings",
+  "description": "Configuration to control which panels and controls are available in the block editor. Copy this file to your theme directory as 'block-settings.json' to customize.",
+  "version": "1.0.0",
+
+  "_comment": "PRESETS: Use these as starting points. The 'simple' preset is perfect for clients who only need text and images.",
+
+  "presets": {
+    "full": {
+      "description": "Full access - all panels and controls enabled (developer mode)",
+      "inspectorControls": {
+        "plainClassesManager": { "enabled": true },
+        "dynamicPreviewToggle": { "enabled": true },
+        "elementSettings": { "enabled": true },
+        "imageSettings": { "enabled": true },
+        "linkSettings": { "enabled": true },
+        "loopControls": { "enabled": true },
+        "conditionalVisibility": { "enabled": true },
+        "setVariable": { "enabled": true }
+      }
+    },
+
+    "simple": {
+      "description": "Simple editor - only text and image blocks (perfect for clients)",
+      "inspectorControls": {
+        "plainClassesManager": {
+          "enabled": false,
+          "_comment": "Hide class manager - no styling controls in simple mode"
+        },
+        "dynamicPreviewToggle": {
+          "enabled": true,
+          "_comment": "Keep dynamic preview available for testing content"
+        },
+        "elementSettings": {
+          "enabled": false,
+          "_comment": "Hide element settings panel completely - tag selection via toolbar only"
+        },
+        "imageSettings": {
+          "enabled": true,
+          "initialOpen": true,
+          "controls": {
+            "mediaLibraryPicker": { "enabled": true },
+            "selectImage": { "enabled": true },
+            "preview": { "enabled": true },
+            "replaceImage": { "enabled": true },
+            "removeImage": { "enabled": true },
+            "altText": {
+              "enabled": true,
+              "required": true,
+              "_comment": "Alt text required for accessibility"
+            },
+            "dimensionsDisplay": { "enabled": false },
+            "sourceDisplay": { "enabled": false }
+          }
+        },
+        "linkSettings": {
+          "enabled": false,
+          "_comment": "No link blocks in simple mode"
+        },
+        "loopControls": {
+          "enabled": false,
+          "_comment": "No Twig/dynamic features in simple mode"
+        },
+        "conditionalVisibility": {
+          "enabled": false
+        },
+        "setVariable": {
+          "enabled": false
+        }
+      },
+      "blockControls": {
+        "tagNameToolbar": {
+          "enabled": true,
+          "allowedTags": ["p", "h1", "h2", "h3", "h4", "h5", "h6", "img"],
+          "_comment": "Only text headings/paragraphs and images in toolbar"
+        },
+        "dynamicPreviewButton": {
+          "enabled": true,
+          "_comment": "Keep preview button in toolbar for testing dynamic content"
+        }
+      }
+    },
+
+    "content-only": {
+      "description": "Content-only mode - blocks and text without HTML or advanced features",
+      "inspectorControls": {
+        "plainClassesManager": { "enabled": true },
+        "dynamicPreviewToggle": { "enabled": false },
+        "elementSettings": {
+          "enabled": true,
+          "controls": {
+            "tagName": {
+              "enabled": true,
+              "allowedTags": ["div", "section", "article", "header", "footer", "nav", "aside", "main", "p", "h1", "h2", "h3", "h4", "h5", "h6", "span", "ul", "ol", "li"]
+            },
+            "contentType": {
+              "enabled": true,
+              "allowedTypes": ["blocks", "text"],
+              "_comment": "Only blocks and text - no raw HTML"
+            },
+            "editAttributes": { "enabled": false },
+            "toHtml": { "enabled": false },
+            "editHtml": { "enabled": false },
+            "toBlocks": { "enabled": false }
+          }
+        },
+        "imageSettings": { "enabled": true },
+        "linkSettings": { "enabled": true },
+        "loopControls": { "enabled": false },
+        "conditionalVisibility": { "enabled": false },
+        "setVariable": { "enabled": false }
+      }
+    }
+  },
+
+  "_comment": "DEFAULT CONFIGURATION: Used when no theme override exists. Copy any preset above or customize below.",
+
+  "activePreset": "full",
+  "_activePresetComment": "Set to 'simple', 'content-only', or 'full' to use a preset, or set to null and customize below",
+
+  "inspectorControls": {
+    "plainClassesManager": {
+      "enabled": true,
+      "controls": {
+        "input": { "enabled": true },
+        "removeToken": { "enabled": true },
+        "clearAll": { "enabled": true }
+      }
+    },
+
+    "dynamicPreviewToggle": {
+      "enabled": true,
+      "controls": {
+        "toggle": { "enabled": true },
+        "editButton": { "enabled": true }
+      }
+    },
+
+    "elementSettings": {
+      "enabled": true,
+      "initialOpen": true,
+      "controls": {
+        "tagName": {
+          "enabled": true,
+          "allowedTags": [],
+          "_allowedTagsComment": "Empty array = all tags allowed. Specify to restrict: ['div', 'p', 'h1', 'img']"
+        },
+        "contentType": {
+          "enabled": true,
+          "allowedTypes": ["blocks", "text", "html", "empty"],
+          "_allowedTypesComment": "Remove types to restrict. Example: ['blocks', 'text'] disables HTML mode"
+        },
+        "textContent": { "enabled": true },
+        "selfClosing": { "enabled": true },
+        "editAttributes": {
+          "enabled": true,
+          "allowedAttributes": [],
+          "disallowedAttributes": [],
+          "_attributesComment": "Control which attributes can be edited. Empty = all allowed"
+        },
+        "toHtml": { "enabled": true },
+        "editHtml": { "enabled": true },
+        "toBlocks": { "enabled": true }
+      }
+    },
+
+    "imageSettings": {
+      "enabled": true,
+      "initialOpen": true,
+      "controls": {
+        "mediaLibraryPicker": { "enabled": true },
+        "selectImage": { "enabled": true },
+        "preview": { "enabled": true },
+        "replaceImage": { "enabled": true },
+        "removeImage": { "enabled": true },
+        "altText": {
+          "enabled": true,
+          "required": false
+        },
+        "dimensionsDisplay": { "enabled": true },
+        "sourceDisplay": { "enabled": true }
+      }
+    },
+
+    "linkSettings": {
+      "enabled": true,
+      "initialOpen": false,
+      "controls": {
+        "externalToggle": { "enabled": true },
+        "urlInput": { "enabled": true },
+        "postTypeSelector": {
+          "enabled": true,
+          "allowedPostTypes": [],
+          "_allowedPostTypesComment": "Empty = all post types. Specify to restrict: ['page', 'post']"
+        },
+        "postPicker": { "enabled": true },
+        "urlDisplay": { "enabled": true },
+        "newTabToggle": {
+          "enabled": true,
+          "defaultValue": false
+        },
+        "relAttribute": { "enabled": true },
+        "ariaLabel": { "enabled": true },
+        "removeLink": { "enabled": true }
+      }
+    },
+
+    "loopControls": {
+      "enabled": true,
+      "initialOpen": false,
+      "controls": {
+        "enableToggle": { "enabled": true },
+        "loopSource": { "enabled": true },
+        "itemVariable": { "enabled": true },
+        "outputPreview": { "enabled": true }
+      }
+    },
+
+    "conditionalVisibility": {
+      "enabled": true,
+      "initialOpen": false,
+      "controls": {
+        "enableToggle": { "enabled": true },
+        "conditionInput": { "enabled": true },
+        "outputPreview": { "enabled": true }
+      }
+    },
+
+    "setVariable": {
+      "enabled": true,
+      "initialOpen": false,
+      "controls": {
+        "enableToggle": { "enabled": true },
+        "variableName": { "enabled": true },
+        "expression": { "enabled": true },
+        "outputPreview": { "enabled": true }
+      }
+    }
+  },
+
+  "blockControls": {
+    "_comment": "Toolbar controls that appear when block is selected",
+    "tagNameToolbar": { "enabled": true },
+    "dynamicPreviewButton": { "enabled": true }
+  }
+}

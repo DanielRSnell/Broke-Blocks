@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import { ToolbarButton, Popover, TextControl, Button } from '@wordpress/components';
+import { ToolbarButton, Popover, TextControl, SelectControl, Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import { getAllowedTags } from '../utils/useBlockSettings';
 
 /**
  * Tag Name Toolbar Control
@@ -31,6 +32,10 @@ export default function TagNameToolbar({ tagName, onChange }) {
 		}
 	};
 
+	// Check if tags are restricted
+	const allowedTags = getAllowedTags();
+	const hasRestrictions = allowedTags.length > 0;
+
 	// Capitalize first letter only
 	const displayName = tagName.charAt(0).toUpperCase() + tagName.slice(1);
 
@@ -56,37 +61,56 @@ export default function TagNameToolbar({ tagName, onChange }) {
 					focusOnMount="firstElement"
 				>
 					<div style={{ padding: '16px', minWidth: '250px' }}>
-						<TextControl
-							label={__('HTML Tag Name', 'universal-block')}
-							value={tempValue}
-							onChange={setTempValue}
-							onKeyDown={handleKeyDown}
-							placeholder="div, section, article..."
-							help={__('Press Enter to save, Esc to cancel', 'universal-block')}
-							style={{ fontFamily: 'Monaco, Menlo, monospace' }}
-							autoFocus
-						/>
-						<div style={{
-							display: 'flex',
-							gap: '8px',
-							marginTop: '12px',
-							justifyContent: 'flex-end'
-						}}>
-							<Button
-								variant="secondary"
-								onClick={() => setIsOpen(false)}
-								size="small"
-							>
-								{__('Cancel', 'universal-block')}
-							</Button>
-							<Button
-								variant="primary"
-								onClick={handleSave}
-								size="small"
-							>
-								{__('Save', 'universal-block')}
-							</Button>
-						</div>
+						{hasRestrictions ? (
+							<SelectControl
+								label={__('HTML Tag', 'universal-block')}
+								value={tempValue}
+								options={allowedTags.map(tag => ({
+									label: tag.charAt(0).toUpperCase() + tag.slice(1),
+									value: tag
+								}))}
+								onChange={(value) => {
+									setTempValue(value);
+									onChange(value);
+									setIsOpen(false);
+								}}
+								help={__('Select element type', 'universal-block')}
+							/>
+						) : (
+							<>
+								<TextControl
+									label={__('HTML Tag Name', 'universal-block')}
+									value={tempValue}
+									onChange={setTempValue}
+									onKeyDown={handleKeyDown}
+									placeholder="div, section, article..."
+									help={__('Press Enter to save, Esc to cancel', 'universal-block')}
+									style={{ fontFamily: 'Monaco, Menlo, monospace' }}
+									autoFocus
+								/>
+								<div style={{
+									display: 'flex',
+									gap: '8px',
+									marginTop: '12px',
+									justifyContent: 'flex-end'
+								}}>
+									<Button
+										variant="secondary"
+										onClick={() => setIsOpen(false)}
+										size="small"
+									>
+										{__('Cancel', 'universal-block')}
+									</Button>
+									<Button
+										variant="primary"
+										onClick={handleSave}
+										size="small"
+									>
+										{__('Save', 'universal-block')}
+									</Button>
+								</div>
+							</>
+						)}
 					</div>
 				</Popover>
 			)}
