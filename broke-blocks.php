@@ -19,13 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-// Load Composer dependencies.
-require_once __DIR__ . '/vendor/autoload.php';
-
-// Initialize Timber.
-if ( ! class_exists( '\Timber\Timber' ) ) {
-	\Timber\Timber::init();
-}
 
 // Add custom Twig function for calling PHP functions/methods
 // add_filter( 'timber/twig', function( $twig ) {
@@ -229,91 +222,7 @@ add_filter( 'the_content', function( $content ) {
 }, 8 );
 
 /**
- * Also process the_content for classic themes
- * Priority 11 runs after do_blocks() at priority 9.
+ * Note: Twig compilation has been removed from global frontend output.
+ * Blocks now output raw Twig syntax (uncompiled) on the frontend.
+ * Twig compilation only occurs in the editor preview via REST API.
  */
-add_filter( 'the_content', array( 'Universal_Block_Processor', 'process_content' ), 11 );
-
-/**
- * Start output buffering to capture entire page HTML (including FSE template parts)
- * This runs early in the WordPress lifecycle, only on frontend
- */
-add_action( 'template_redirect', function() {
-	// Only buffer on frontend (not admin, not AJAX, not REST API)
-	if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-		return;
-	}
-
-	// Only buffer if Timber is available
-	if ( ! class_exists( '\Timber\Timber' ) ) {
-		return;
-	}
-
-	// Start output buffering (without callback for now)
-	ob_start();
-}, 1 );
-
-/**
- * Process the entire page HTML output (FSE + content) with Twig compilation
- * This runs at the very end, capturing all rendered output including FSE template parts
- * Priority 100 allows ShortPixel (priority 10) to wrap our buffer, then we compile after
- */
-add_action( 'shutdown', function() {
-	// Only process on frontend
-	if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-		return;
-	}
-
-	// Only process if Timber is available
-	if ( ! class_exists( '\Timber\Timber' ) ) {
-		return;
-	}
-
-	// Collect all output buffer levels (in case other plugins also use buffering)
-	$final_html = '';
-	$levels = ob_get_level();
-
-	// Get all buffer contents
-	for ( $i = 0; $i < $levels; $i++ ) {
-		$buffer = ob_get_clean();
-		if ( $buffer !== false ) {
-			$final_html = $buffer . $final_html; // Prepend since we're going backwards
-		}
-	}
-
-	// If no buffered content, bail
-	if ( empty( $final_html ) ) {
-		return;
-	}
-
-	// Only compile if HTML contains Twig syntax
-	if ( ! preg_match( '/\{[{%].*?[}%]\}/', $final_html ) ) {
-		echo $final_html;
-		return;
-	}
-
-	try {
-		// Get Timber context
-		$context = \Timber\Timber::context();
-
-		// Compile Twig
-		echo \Timber\Timber::compile_string( $final_html, $context );
-
-	} catch ( Exception $e ) {
-		// Log error
-		error_log( 'Universal Block Twig error: ' . $e->getMessage() );
-
-		// Show error if debug mode
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_DISPLAY' ) && WP_DEBUG_DISPLAY ) {
-			echo '<div style="background: #ffebee; border: 2px solid #c62828; padding: 20px; margin: 20px; font-family: monospace;">';
-			echo '<h2 style="color: #c62828; margin-top: 0;">Twig Compilation Error</h2>';
-			echo '<p><strong>Message:</strong> ' . esc_html( $e->getMessage() ) . '</p>';
-			echo '<p><strong>File:</strong> ' . esc_html( $e->getFile() ) . '</p>';
-			echo '<p><strong>Line:</strong> ' . esc_html( $e->getLine() ) . '</p>';
-			echo '</div>';
-		}
-
-		// Output original HTML
-		echo $final_html;
-	}
-}, 0 ); // Priority 0 = run as early as possible during shutdown

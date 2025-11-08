@@ -51,20 +51,27 @@ Tag configurations were previously centralized but are now managed directly in t
 3. **html**: Raw HTML content via Ace Editor with Emmet support (for complex markup, SVGs, etc.)
 4. **empty**: Self-closing/void elements (img, hr, br, etc.)
 
-### Dynamic Tags & Timber Integration
+### Twig Integration & Preview System
 
-The plugin supports dynamic content processing through custom tags:
+The plugin outputs **raw Twig syntax** on the frontend (uncompiled). Twig compilation **only occurs in the editor preview** via REST API.
 
-- **`<set>`**: Variable assignment (`<set variable="myVar" value="post.title" />`)
-- **`<if>`**: Conditional rendering (`<if source="user.ID > 0">...</if>`)
-- **`<loop>`**: Iteration over data (`<loop source="item in posts">...</loop>`)
+**Twig Control Attributes:**
+Managed via block attributes in the Twig Controls Panel:
+- **Loop Control**: `loopSource` and `loopVariable` attributes → Renders as `{% for variable in source %}...{% endfor %}`
+- **Conditional Visibility**: `conditionalExpression` attribute → Renders as `{% if condition %}...{% endif %}`
+- **Set Variable**: `setVariable` and `setExpression` attributes → Renders as `{% set variable = expression %}`
 
-**Processing Pipeline:**
-1. Blocks render to HTML with dynamic tags ([includes/blocks/render-element.php](includes/blocks/render-element.php))
-2. Dynamic tags parsed to Twig syntax ([includes/parser/class-dynamic-tag-parser.php](includes/parser/class-dynamic-tag-parser.php))
-3. Twig compiled with Timber context (filter in [universal-block.php](universal-block.php) at priority 11)
+**Frontend Rendering:**
+1. Blocks render to HTML with Twig control wrappers ([includes/blocks/render-element.php](includes/blocks/render-element.php))
+2. Output contains **raw Twig syntax** (e.g., `{{ post.title }}`, `{% for item in items %}`)
+3. **NO compilation occurs** - Twig syntax is output as-is
 
-The preview API ([includes/api/class-preview-api.php](includes/api/class-preview-api.php)) provides real-time preview of dynamic content in the editor.
+**Editor Preview (REST API only):**
+1. User enables "Dynamic Preview" toggle in block settings
+2. Block serialized and sent to preview API ([includes/api/class-preview-api.php](includes/api/class-preview-api.php))
+3. Dynamic tags (`<set>`, `<loop>`, `<if>`) parsed to Twig syntax ([includes/parser/class-dynamic-tag-parser.php](includes/parser/class-dynamic-tag-parser.php))
+4. Twig compiled with Timber context via `Timber::compile_string()`
+5. Compiled HTML returned to editor for preview display
 
 ### Dual Rendering System
 
@@ -78,9 +85,12 @@ The preview API ([includes/api/class-preview-api.php](includes/api/class-preview
 
 **Frontend (PHP):**
 - Server-side rendering: [includes/blocks/render-element.php](includes/blocks/render-element.php)
+- Outputs **raw Twig syntax** (uncompiled)
+- Twig control wrappers added from block attributes
 - No wrapper elements (direct HTML output)
 - Automatic block IDs (`id="block-{hash}"`)
 - Sanitization based on content type (wp_kses_post, extended for SVG)
+- Twig syntax in attributes left unescaped for processing by external systems
 
 ### Key Components
 
@@ -340,24 +350,28 @@ universal-block/
 - `POST /wp-json/universal-block/v1/dynamic-preview`: Individual block preview with Timber processing
 - `POST /wp-json/universal-block/v1/preview-settings`: Save/retrieve preview configuration (user meta)
 
-## Timber Context
+## Timber Context (Preview API Only)
 
-The plugin extends Timber context with:
-- `post` - Current post object (post.title, post.meta, post.thumbnail, post.author)
+**IMPORTANT:** Timber context is **only used for editor preview** via REST API. The frontend outputs raw Twig syntax without compilation.
+
+**Preview Context Variables:**
+When Dynamic Preview is enabled in the editor, the preview API compiles Twig with these variables:
+- `post` - Current post object from preview settings (post.title, post.meta, post.thumbnail, post.author)
 - `user` - Current user (user.ID, user.display_name, user.roles)
 - `page_data` - Custom data via `universal_block/page_data` filter
 - Test data for preview mode (test_array, user_count, is_featured)
 
-Context is available in dynamic tags via Twig syntax: `{{ post.title }}`, `{{ user.display_name }}`
-
-**Custom Context Filters:**
+**Custom Context Filters (Preview Only):**
 ```php
-// Add custom data to specific block context
-add_filter('universal_block/context/product_gallery', function($context) {
+// Add custom data to preview context
+add_filter('universal_block/page_data', function($context) {
     $context['products'] = Timber::get_posts(['post_type' => 'product']);
     return $context;
 });
 ```
+
+**Frontend Behavior:**
+Blocks output raw Twig syntax like `{{ post.title }}` and `{{ user.display_name }}` without compilation. External systems (themes, other plugins) are responsible for Twig compilation if desired.
 
 ## Dependencies
 
